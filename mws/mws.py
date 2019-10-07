@@ -240,8 +240,12 @@ class MWS(object):
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
-
-            data = response.content
+            
+            try:
+                data = response.content.decode('utf-8')
+            except(UnicodeDecodeError, AttributeError):
+                data = response.content
+            
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
