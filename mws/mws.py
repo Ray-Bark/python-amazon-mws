@@ -102,7 +102,12 @@ def remove_namespace(xml):
 
 class DictWrapper(object):
     def __init__(self, xml, rootkey=None):
-        self.original = xml
+        
+        try:
+            self.original = xml.decode('utf-8')
+        except(UnicodeDecodeError, AttributeError):
+            self.original = xml
+        
         self.response = None
         self._rootkey = rootkey
         self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
@@ -251,12 +256,7 @@ class MWS(object):
                     parsed_response = DictWrapper(data, rootkey)
                 except TypeError:  # raised when using Python 3 and trying to remove_namespace()
                     # When we got CSV as result, we will got error on this
-                    try:
-                        text = response.text.decode('utf-8')
-                    except(UnicodeDecodeError, AttributeError):
-                        text = response.text
-                    
-                    parsed_response = DictWrapper(text, rootkey)
+                    parsed_response = DictWrapper(response.text, rootkey)
 
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
