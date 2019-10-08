@@ -109,7 +109,10 @@ class DictWrapper(object):
             logging.info('Processing: ' + str(type(xml)))
             text = xml.decode("ISO-8859-1")
         except(UnicodeDecodeError, AttributeError):
+            logging.info('Falling Back to String...')
             text = xml
+            
+        logging.info(text)
         
         self.response = None
         self._rootkey = rootkey
