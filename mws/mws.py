@@ -241,10 +241,7 @@ class MWS(object):
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
             
-            try:
-                data = response.content.decode('utf-8')
-            except(UnicodeDecodeError, AttributeError):
-                data = response.content
+            data = response.content
             
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
@@ -254,7 +251,12 @@ class MWS(object):
                     parsed_response = DictWrapper(data, rootkey)
                 except TypeError:  # raised when using Python 3 and trying to remove_namespace()
                     # When we got CSV as result, we will got error on this
-                    parsed_response = DictWrapper(response.text, rootkey)
+                    try:
+                        text = response.text.decode('utf-8')
+                    except(UnicodeDecodeError, AttributeError):
+                        text = response.text
+                    
+                    parsed_response = DictWrapper(text, rootkey)
 
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
