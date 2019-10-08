@@ -8,6 +8,7 @@ import hashlib
 import hmac
 import re
 import warnings
+import logging
 
 from requests import request
 from requests.exceptions import HTTPError
@@ -105,7 +106,8 @@ class DictWrapper(object):
         
         self.original = xml
         try:
-            text = xml.decode('utf-8')
+            logging.info('Processing: ' + str(type(xml)))
+            text = xml.decode("ISO-8859-1")
         except(UnicodeDecodeError, AttributeError):
             text = xml
         
