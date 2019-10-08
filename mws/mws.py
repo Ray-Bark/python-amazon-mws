@@ -8,7 +8,6 @@ import hashlib
 import hmac
 import re
 import warnings
-import logging
 
 from requests import request
 from requests.exceptions import HTTPError
@@ -103,20 +102,10 @@ def remove_namespace(xml):
 
 class DictWrapper(object):
     def __init__(self, xml, rootkey=None):
-        
         self.original = xml
-        try:
-            logging.info('Processing: ' + str(type(xml)))
-            text = xml.decode("ISO-8859-1")
-        except(UnicodeDecodeError, AttributeError):
-            logging.info('Falling Back to String...')
-            text = xml
-            
-        logging.info(text)
-        
         self.response = None
         self._rootkey = rootkey
-        self._mydict = utils.XML2Dict().fromstring(remove_namespace(text))
+        self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
         self._response_dict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
 
     @property
@@ -251,9 +240,8 @@ class MWS(object):
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
-            
+
             data = response.content
-            
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
@@ -264,7 +252,7 @@ class MWS(object):
                     # When we got CSV as result, we will got error on this
                     parsed_response = DictWrapper(response.text, rootkey)
 
-            except XMLError:
+            except:
                 parsed_response = DataWrapper(data, response.headers)
 
         except HTTPError as e:
