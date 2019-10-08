@@ -103,14 +103,15 @@ def remove_namespace(xml):
 class DictWrapper(object):
     def __init__(self, xml, rootkey=None):
         
+        self.original = xml
         try:
-            self.original = xml.decode('utf-8')
+            text = xml.decode('utf-8')
         except(UnicodeDecodeError, AttributeError):
-            self.original = xml
+            text = xml
         
         self.response = None
         self._rootkey = rootkey
-        self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
+        self._mydict = utils.XML2Dict().fromstring(remove_namespace(text))
         self._response_dict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
 
     @property
